@@ -14,6 +14,7 @@ class PID
 
     public:
     /* Constructor */
+    // PID();  // Kp = 0, Ki = 0, Kd = 0
     PID(double Kp, double Ki, double Kd);
 
     /* Methods */

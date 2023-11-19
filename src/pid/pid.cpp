@@ -11,7 +11,6 @@
 
 using namespace std;
 
-// Constructor
 PID::PID(double Kp, double Ki, double Kd)
 {
     // Assign Gains to PID obj
@@ -23,6 +22,9 @@ PID::PID(double Kp, double Ki, double Kd)
     prev_error = 0.0;
     integral = 0.0;
 }
+
+// Empty Arguments: Constructor Delegation
+// PID::PID() : PID::PID(0.0, 0.0, 0.0) {}
 
 bool PID::compute(double dt, double current_error, double& output)
 {
