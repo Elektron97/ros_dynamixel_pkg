@@ -13,11 +13,14 @@
 class Current_PID : public ExtPos_Dynamixel
 {
     /* PRIVATE ATTRIBUTES */
-    std::vector<PID> pid_controllers;
+    std::vector<PID<float>> pid_controllers;
+    std::vector<float> motor_currents;
+    std::vector<float> pid_outputs;
 
     /* PUBLIC ATTRIBUTES AND METHODS */
     public: 
         Current_PID(int n_dyna);
+        bool set_currents(std::vector<float> cmd_currents);
 };
 
 #endif /* CUSTOM_CURRENT_CONTROL_H_ */

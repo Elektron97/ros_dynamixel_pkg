@@ -11,7 +11,7 @@
 
 using namespace std;
 
-PID::PID(double Kp, double Ki, double Kd)
+template <typename T> PID<T>::PID(T Kp, T Ki, T Kd)
 {
     // Assign Gains to PID obj
     this->Kp = Kp;
@@ -26,7 +26,7 @@ PID::PID(double Kp, double Ki, double Kd)
 // Empty Arguments: Constructor Delegation
 // PID::PID() : PID::PID(0.0, 0.0, 0.0) {}
 
-bool PID::compute(double dt, double current_error, double& output)
+template <typename T> bool PID<T>::compute(T dt, T current_error, T& output)
 {
     // Update integral contribute
     integral += current_error*dt;
