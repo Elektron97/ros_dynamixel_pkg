@@ -28,13 +28,15 @@ template <typename T> PID<T>::PID(T Kp, T Ki, T Kd)
 
 template <typename T> bool PID<T>::compute(T dt, T current_error, T& output)
 {
-    // Update integral contribute
-    integral += current_error*dt;
-
+    // Security Check on dt
     if(dt == 0)
         return false;
     else
     {
+        // Update integral contribute
+        integral += current_error*dt;
+
+        // Compute Control Law
         output = Kp*current_error + Ki*integral + (current_error - prev_error)/dt;
         return true;
     }
