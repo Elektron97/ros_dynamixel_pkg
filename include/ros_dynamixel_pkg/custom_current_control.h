@@ -10,9 +10,9 @@
 #include "pid/pid.h"
 
 /* DEFINES */
-#define KP 1.0
-#define KI 1.0
-#define KD 1.0
+#define KP 0.5
+#define KI 0.2
+#define KD 0.01
 
 /* INHERITING ExtPos_Dynamixel */
 class Current_PID : public ExtPos_Dynamixel
