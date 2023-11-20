@@ -11,16 +11,18 @@ Current_PID::Current_PID(int n_dyna) : ExtPos_Dynamixel(n_dyna)
     // Init PIDs
     for(i = 0; i < n_motors; i++)
     {
-        // TO DO: Insert Tuned Gains
-        pid_controllers.push_back(PID<float>(1.0, 1.0, 1.0));
+        pid_controllers.push_back(PID<float>(KP, KI, KD));
     }
 
     // Init motor_currents
     motor_currents = std::vector<float>(n_motors);
     pid_outputs = std::vector<float>(n_motors);
+
+    // Init prev_time with current instant
+    prev_time = ros::Time::now().toSec();
 }
 
-bool Current_PID::set_currents(std::vector<float> cmd_currents)
+bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_time)
 {
     // 1. Read motor_currents
     if(get_currents(motor_currents))
@@ -28,8 +30,8 @@ bool Current_PID::set_currents(std::vector<float> cmd_currents)
         // Compute PID outputs
         for(i = 0; i < n_motors; i++)
         {
-            // Hardcoded 100 Hz for now
-            pid_controllers[i].compute(0.01, cmd_currents[i] - motor_currents[i], pid_outputs[i]);
+            // Variable Dt
+            pid_controllers[i].compute(currents_time - prev_time, cmd_currents[i] - motor_currents[i], pid_outputs[i]);
         }
 
         // Send to set_turns method of ExtPos_Dynamixel Super Class
