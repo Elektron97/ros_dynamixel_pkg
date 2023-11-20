@@ -27,7 +27,7 @@ bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_t
     // 1. Read motor_currents
     if(get_currents(motor_currents))
     {
-        // Compute PID outputs
+        // 2. Compute PID outputs
         for(i = 0; i < n_motors; i++)
         {
             // Variable Dt
@@ -37,7 +37,7 @@ bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_t
         // Update prev_time
         prev_time = currents_time;
 
-        // Send to set_turns method of ExtPos_Dynamixel Super Class
+        // 3. Send to set_turns method of ExtPos_Dynamixel Super Class
         if(!set_turns(pid_outputs))
             return false;
         else
