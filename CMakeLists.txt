@@ -26,12 +26,8 @@ add_library(pid_utils src/pid/pid.cpp)
 target_link_libraries(pid_utils ${catkin_LIBRARIES})
 
 # Dynamixel Library
-add_library(${PROJECT_NAME} src/dynamixel_utils.cpp)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-
-# PID-based Current Control
-add_library(custom_current_control src/custom_current_control.cpp)
-target_link_libraries(custom_current_control ${catkin_LIBRARIES} ${PROJECT_NAME} pid_utils)
+add_library(${PROJECT_NAME} src/dynamixel_utils.cpp src/custom_current_control.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} pid_utils)
 
 #### Export Library ####
 install(

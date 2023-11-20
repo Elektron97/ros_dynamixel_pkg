@@ -5,8 +5,6 @@
 #ifndef _PID_SOURCE_
 #define _PID_SOURCE_
 
-#include <iostream>
-#include <cmath>
 #include "pid/pid.h"
 
 using namespace std;
