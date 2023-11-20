@@ -34,6 +34,9 @@ bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_t
             pid_controllers[i].compute(currents_time - prev_time, cmd_currents[i] - motor_currents[i], pid_outputs[i]);
         }
 
+        // Update prev_time
+        prev_time = currents_time;
+
         // Send to set_turns method of ExtPos_Dynamixel Super Class
         if(!set_turns(pid_outputs))
             return false;
