@@ -30,6 +30,18 @@ class Current_PID : public ExtPos_Dynamixel
     public: 
         Current_PID(int n_dyna);
         bool set_currents(std::vector<float> cmd_currents, float currents_time);
+        // Overload set_currents: it gives the actuators' internal currents
+        bool set_currents(std::vector<float> cmd_currents, float currents_time, std::vector<float>& feedback_currents);
+
+        /************************* Few Words about set_currents method: *********************************
+         * set_currents uses the current feedback to command the motors.                                *
+         * If the higher-level ROS node try to read the currents, there will be                         *
+         * 2 reading of currents. This augments the probability of conflict in                          *
+         * the accessing to the registers of Dynamixels.                                                *
+         * To avoid it, set_currents overloaded method, store the feedback current                      *
+         * in an internal variable, in such a way, it is possible to read the already extracted value   *
+         * for debug purposes.                                                                          *
+         ************************************************************************************************/
 };
 
 #endif /* CUSTOM_CURRENT_CONTROL_H_ */

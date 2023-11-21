@@ -49,3 +49,18 @@ bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_t
         return false;
     }
 }
+
+bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_time, std::vector<float>& feedback_currents)
+{
+    // set_currents standard implementation
+    if(set_currents(cmd_currents, currents_time))
+    {
+        // Save feedback currents from the private attribute of the class
+        feedback_currents = motor_currents;
+        
+        // report boolean result
+        return true;
+    }
+    else
+        return false;   // No current feedback
+}
