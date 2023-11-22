@@ -10,9 +10,9 @@
 #include "pid/pid.h"
 
 /* DEFINES */
-#define KP 0.5
-#define KI 0.2
-#define KD 0.01
+#define KP 0.5      // Default 
+#define KI 0.2      // Default
+#define KD 0.01     // Default
 
 /* INHERITING ExtPos_Dynamixel */
 class Current_PID : public ExtPos_Dynamixel
@@ -28,6 +28,8 @@ class Current_PID : public ExtPos_Dynamixel
 
     /* PUBLIC ATTRIBUTES AND METHODS */
     public: 
+        Current_PID(int n_dyna, float Kp, float Ki, float Kd);
+        // Overload Constructor: import Default PID gains
         Current_PID(int n_dyna);
         bool set_currents(std::vector<float> cmd_currents, float currents_time);
         // Overload set_currents: it gives the actuators' internal currents

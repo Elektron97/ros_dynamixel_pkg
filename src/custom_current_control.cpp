@@ -5,13 +5,13 @@
 #include "ros_dynamixel_pkg/custom_current_control.h"
 
 // Source code of methods and constructors
-Current_PID::Current_PID(int n_dyna) : ExtPos_Dynamixel(n_dyna)
+Current_PID::Current_PID(int n_dyna, float Kp, float Ki, float Kd) : ExtPos_Dynamixel(n_dyna)
 {
     /* After ExtPos_Dynamixel Constructor... */
     // Init PIDs
     for(i = 0; i < n_motors; i++)
     {
-        pid_controllers.push_back(PID<float>(KP, KI, KD));
+        pid_controllers.push_back(PID<float>(Kp, Ki, Kd));
     }
 
     // Init motor_currents
@@ -20,6 +20,14 @@ Current_PID::Current_PID(int n_dyna) : ExtPos_Dynamixel(n_dyna)
 
     // Init prev_time with current instant
     prev_time = ros::Time::now().toSec();
+}
+
+// Source code of methods and constructors
+Current_PID::Current_PID(int n_dyna) : ExtPos_Dynamixel(n_dyna)
+{
+    /* After ExtPos_Dynamixel Constructor... */
+    
+    Current_PID(n_dyna, KP, KI, KD);
 }
 
 bool Current_PID::set_currents(std::vector<float> cmd_currents, float currents_time)
