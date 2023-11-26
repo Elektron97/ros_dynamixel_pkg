@@ -21,12 +21,17 @@ include_directories(
 )
 
 #### Libraries ####
-# Dynamixel Library
+# PID Library
+add_library(pid_utils src/pid/pid.cpp)
+target_link_libraries(pid_utils ${catkin_LIBRARIES})
+
+# Dynamixel Library (Super Class)
 add_library(abstract_dyna src/dynamixel_motors.cpp)
 target_link_libraries(abstract_dyna ${catkin_LIBRARIES})
 
-add_library(${PROJECT_NAME} src/extpos_dynamixel.cpp src/current_dynamixel.cpp src/velocity_dynamixel.cpp)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} abstract_dyna)
+
+add_library(${PROJECT_NAME} src/extpos_dynamixel.cpp src/current_dynamixel.cpp src/velocity_dynamixel.cpp src/custom_current_control.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} abstract_dyna pid_utils)
 
 #### Export Library ####
 install(
