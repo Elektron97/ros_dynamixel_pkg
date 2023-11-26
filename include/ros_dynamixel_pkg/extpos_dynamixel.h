@@ -3,7 +3,7 @@
 
 #include "ros_dynamixel_pkg/dynamixel_motors.h"
 
-// Extended Position Dynamixel
+// Extended Position Dynamixel with Current Feedback
 class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
 {
     // Init with POSITION address
