@@ -22,8 +22,11 @@ include_directories(
 
 #### Libraries ####
 # Dynamixel Library
-add_library(${PROJECT_NAME} src/dynamixel_utils.cpp)
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+add_library(abstract_dyna src/dynamixel_motors.cpp)
+target_link_libraries(abstract_dyna ${catkin_LIBRARIES})
+
+add_library(${PROJECT_NAME} src/extpos_dynamixel.cpp src/current_dynamixel.cpp src/velocity_dynamixel.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} abstract_dyna)
 
 #### Export Library ####
 install(
