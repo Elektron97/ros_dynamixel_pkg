@@ -14,6 +14,9 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
     // Initial Positions
     std::vector<int32_t> initial_positions;
 
+    // Motor Mask
+    std::vector<bool> motors_mask;
+
     /************************************************  
     *   These methods are private because           *
     *   there are no saturation on them.            *
