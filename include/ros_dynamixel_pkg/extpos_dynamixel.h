@@ -3,6 +3,8 @@
 
 #include "ros_dynamixel_pkg/dynamixel_motors.h"
 
+#define DISABLE_TORQUE_REQUEST -1
+
 // Extended Position Dynamixel with Current Feedback
 class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
 {
@@ -14,9 +16,6 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
     // Initial Positions
     std::vector<int32_t> initial_positions;
 
-    // Motor Mask
-    std::vector<bool> motors_mask;
-
     /************************************************  
     *   These methods are private because           *
     *   there are no saturation on them.            *
@@ -25,6 +24,7 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
     *************************************************/
     // Low Level Set: Register
     bool set2registers(int32_t registers[]);
+    bool set2registers(int32_t registers[], bool motors_mask[]);
 
     public:
         // --- Constructor --- //
@@ -33,6 +33,9 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
         // --- Methods --- //
         bool set_turns(float turns[]);
         bool set_turns(std::vector<float> turns);
+
+        // set_turns w/ disable_request
+        bool set_turns_disable(std::vector<float> turns);
 
         // Low Level Get: Register
         bool get_PosRegisters(std::vector<int32_t>& positions);
