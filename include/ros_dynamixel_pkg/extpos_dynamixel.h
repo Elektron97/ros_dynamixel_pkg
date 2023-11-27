@@ -22,7 +22,6 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
     *************************************************/
     // Low Level Set: Register
     bool set2registers(int32_t registers[]);
-    bool set2registers(std::vector<int32_t> registers);         // Overwrite (vector<T>)
 
     public:
         // --- Constructor --- //

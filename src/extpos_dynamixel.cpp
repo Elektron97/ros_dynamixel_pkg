@@ -215,60 +215,6 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     }
 }
 
-bool ExtPos_Dynamixel::set2registers(std::vector<int32_t> registers)
-{
-    // Error Handling
-    dxl_error = 0;
-    dxl_comm_result = COMM_TX_FAIL;
-    int dxl_addparam_result = false;
-
-    // Double Array for cycle every motors
-    uint8_t param_goal_positions[n_motors][POSITION_BYTE];
-
-    // Add parameters to sync_write obj
-    i = 0;
-    for(i; i < n_motors; i++) // supposing motors idx are from 1 to n_motors
-    {
-        // Security Saturation on register values
-        //if(!registerTurns_saturation(registers[i]))
-        //    ROS_WARN("Commanded Current are out of limits. Saturating...");
-
-        param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
-        param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
-        param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(registers[i]));
-        param_goal_positions[i][3] = DXL_HIBYTE(DXL_HIWORD(registers[i]));
-
-        dxl_addparam_result = motors_syncWrite.addParam((uint8_t) i + 1, param_goal_positions[i]);
-        if (dxl_addparam_result != true)
-        {
-            ROS_ERROR( "Failed to addparam to groupSyncWrite for Dynamixel ID %d", i+1);
-            break;
-        }
-    }
-
-    // Send all data
-    dxl_comm_result = motors_syncWrite.txPacket();
-    if (dxl_comm_result == COMM_SUCCESS) 
-    {
-        for(i = 0; i < n_motors; i++)
-        {
-            ROS_INFO("setPosition : [ID:%d] [POSITION (register):%d]", i+1, registers[i]); 
-        }
-        
-        // Clear Parameters
-        motors_syncWrite.clearParam();
-        return true;
-    } 
-    else 
-    {
-        ROS_ERROR("Failed to set position! Result: %d", dxl_comm_result);
-        
-        // Clear Parameters
-        motors_syncWrite.clearParam();
-        return false;
-    }
-}
-
 bool ExtPos_Dynamixel::set_turns(float turns[])
 {
     // Convert in position register value
