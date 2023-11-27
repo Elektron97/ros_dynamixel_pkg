@@ -25,7 +25,7 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
 
     public:
         // --- Constructor --- //
-        ExtPos_Dynamixel(int n_dyna);
+        ExtPos_Dynamixel(int n_motors);
 
         // --- Methods --- //
         bool set_turns(float turns[]);

@@ -1,10 +1,10 @@
 #include "ros_dynamixel_pkg/extpos_dynamixel.h"
 
 // --- Extended Position Dynamixel Class --- //
-ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
+ExtPos_Dynamixel::ExtPos_Dynamixel(int n_motors)
 {
     // Init n_motors
-    n_motors = n_dyna;
+    this->n_motors = n_motors;
 
     // Error Handling
     // Init done by Super Class Constructor
@@ -13,7 +13,7 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_dyna)
 
     // Turn On LED | Current Mode | Enable Torque | Profile velocity | Profile Acceleration
     i = 0;
-    for(i; i < n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
+    for(i; i < this->n_motors; i++) // Supposing that Motors idx are from 1 to n_motors
     {
         // LED
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
