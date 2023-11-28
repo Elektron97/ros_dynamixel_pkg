@@ -237,7 +237,7 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[], bool motors_mask[])
         if(!motors_mask[i])
             continue;
 
-
+        // Extract the word
         param_goal_positions[i][0] = DXL_LOBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][1] = DXL_HIBYTE(DXL_LOWORD(registers[i]));
         param_goal_positions[i][2] = DXL_LOBYTE(DXL_HIWORD(registers[i]));
@@ -322,6 +322,7 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
     i = 0;
     for(i; i < n_motors; i++)
     {
+        // Disable Torque Request
         if(turns[i] == DISABLE_TORQUE_REQUEST)
         {
             // Skip this motor inside set2registers() method
@@ -343,12 +344,29 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
                 ROS_ERROR("Failed to disable torque for Dynamixel ID %d", i+1);
                 break;
             }
-
-        }   
+        }
+        // Enable Torque Request   
         else
         {
             // Consider this motor inside set2registers() method
             motors_mask[i] = true;
+
+            // --- Enable Torque & LED --- //
+            // LED
+            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
+            if (dxl_comm_result != COMM_SUCCESS) 
+            {
+                ROS_ERROR("Failed to turn on LED for Dynamixel ID %d", i+1);
+                break;
+            }
+
+            // Disable Torque
+            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
+            if (dxl_comm_result != COMM_SUCCESS) 
+            {
+                ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                break;
+            }
 
             // Security Saturation on turns values
             if(!turns_saturation(turns[i]))
