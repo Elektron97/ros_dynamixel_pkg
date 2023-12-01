@@ -360,7 +360,7 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
                 break;
             }
 
-            // Disable Torque
+            // Enable Torque
             dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
             if (dxl_comm_result != COMM_SUCCESS) 
             {
