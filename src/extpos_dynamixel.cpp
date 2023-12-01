@@ -56,6 +56,9 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_motors)
         }
     }
 
+    // Init Motors Mask
+    motors_mask = std::vector<bool>(this->n_motors);
+
     // Read Initial Position
     if(!get_PosRegisters(initial_positions))
         ROS_ERROR("Failed to read all initial positions of the motors.");
@@ -215,7 +218,7 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     }
 }
 
-bool ExtPos_Dynamixel::set2registers(int32_t registers[], bool motors_mask[])
+bool ExtPos_Dynamixel::set2registers_disable(int32_t registers[])
 {
     // Error Handling
     dxl_error = 0;
@@ -316,14 +319,13 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
 {
     // Convert in position register value
     int32_t registers[n_motors];
-    bool motors_mask[n_motors];
 
     // Start Conversion
     i = 0;
     for(i; i < n_motors; i++)
     {
         // Disable Torque Request
-        if(turns[i] == DISABLE_TORQUE_REQUEST)
+        if((turns[i] == DISABLE_TORQUE_REQUEST) && (motors_mask[i]))
         {
             // Skip this motor inside set2registers() method
             motors_mask[i] = false;
@@ -346,7 +348,7 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
             }
         }
         // Enable Torque Request   
-        else
+        else if((turns[i] != DISABLE_TORQUE_REQUEST) && (!motors_mask[i]))
         {
             // Consider this motor inside set2registers() method
             motors_mask[i] = true;
@@ -376,7 +378,7 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
         }    
     }
 
-    return set2registers(registers, motors_mask);   // to do: write the overwritten method  
+    return set2registers_disable(registers);   // to do: write the overwritten method  
 }
 
 bool ExtPos_Dynamixel::set2Zeros()
