@@ -348,7 +348,7 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
             }
         }
         // Enable Torque Request   
-        else if((turns[i] >= 0.0) && (!motors_mask[i]))
+        else if((turns[i] != DISABLE_TORQUE_REQUEST) && (!motors_mask[i]))
         {
             // Consider this motor inside set2registers() method
             motors_mask[i] = true;
