@@ -395,7 +395,14 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
         }
     }
 
-    return set2registers_disable(registers);   // to do: write the overwritten method  
+    // Avoid writing in the registers when all the motors are turned off
+    if(is_allOFF())
+    {
+        ROS_WARN("All motors are turned OFF.");
+        return true;
+    }
+    else
+        return set2registers_disable(registers);
 }
 
 bool ExtPos_Dynamixel::set2Zeros()
@@ -446,4 +453,20 @@ bool ExtPos_Dynamixel::set2Zeros()
         motors_syncWrite.clearParam();
         return false;
     }
+}
+
+bool ExtPos_Dynamixel::is_allOFF()
+{
+    // useful variable
+    bool output = false;
+    
+    // Iterative OR to find at least one true
+    for(i = 0; i < n_motors; i++)
+    {
+        output |= motors_mask[i];
+    }
+
+    // If all elements of motors_mask are false, then true
+    // If motors_mask contains at least 1 true, then false
+    return !output;
 }
