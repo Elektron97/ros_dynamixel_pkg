@@ -49,6 +49,9 @@ class ExtPos_Dynamixel: public Dynamixel_Motors<int32_t>
 
         // Power Off Functions
         bool set2Zeros();
+
+        // Check if all the motors are turned off
+        bool is_allOFF();
 };
 
 
