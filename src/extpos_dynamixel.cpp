@@ -23,11 +23,11 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_motors)
             break;
         }
 
-        // Current Drive Mode
+        // Extended-Position Drive Mode
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_OP_MODE, EXTENDED_POSITION_MODE, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS) 
         {
-            ROS_ERROR("Failed to set Current Mode for Dynamixel ID %d", i+1);
+            ROS_ERROR("Failed to set Extended Position Mode for Dynamixel ID %d", i+1);
             break;
         }
 
