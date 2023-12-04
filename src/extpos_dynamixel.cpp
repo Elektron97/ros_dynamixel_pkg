@@ -23,11 +23,11 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_motors)
             break;
         }
 
-        // Current Drive Mode
+        // Extended-Position Drive Mode
         dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_OP_MODE, EXTENDED_POSITION_MODE, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS) 
         {
-            ROS_ERROR("Failed to set Current Mode for Dynamixel ID %d", i+1);
+            ROS_ERROR("Failed to set Extended Position Mode for Dynamixel ID %d", i+1);
             break;
         }
 
@@ -55,6 +55,9 @@ ExtPos_Dynamixel::ExtPos_Dynamixel(int n_motors)
             break;
         }
     }
+
+    // Init Motors Mask
+    motors_mask = std::vector<bool>(this->n_motors, true);
 
     // Read Initial Position
     if(!get_PosRegisters(initial_positions))
@@ -215,7 +218,7 @@ bool ExtPos_Dynamixel::set2registers(int32_t registers[])
     }
 }
 
-bool ExtPos_Dynamixel::set2registers(int32_t registers[], bool motors_mask[])
+bool ExtPos_Dynamixel::set2registers_disable(int32_t registers[])
 {
     // Error Handling
     dxl_error = 0;
@@ -316,67 +319,90 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
 {
     // Convert in position register value
     int32_t registers[n_motors];
-    bool motors_mask[n_motors];
 
     // Start Conversion
     i = 0;
     for(i; i < n_motors; i++)
     {
-        // Disable Torque Request
+        // Manage Disable Torque Request
         if(turns[i] == DISABLE_TORQUE_REQUEST)
         {
-            // Skip this motor inside set2registers() method
-            motors_mask[i] = false;
-
-            // --- Disable Torque & LED --- //
-            // LED
-            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_OFF, &dxl_error);
-            if (dxl_comm_result != COMM_SUCCESS) 
+            // case 1: Turn off the i-th motor
+            if(motors_mask[i])
             {
-                ROS_ERROR("Failed to turn off LED for Dynamixel ID %d", i+1);
-                break;
+                // --- Disable Torque & LED --- //
+                // LED
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_OFF, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to turn off LED for Dynamixel ID %d", i+1);
+                    break;
+                }
+
+                // Disable Torque
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_DISABLE, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to disable torque for Dynamixel ID %d", i+1);
+                    break;
+                }
+
+                // Update Motors mask
+                motors_mask[i] = false;
             }
 
-            // Disable Torque
-            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_DISABLE, &dxl_error);
-            if (dxl_comm_result != COMM_SUCCESS) 
-            {
-                ROS_ERROR("Failed to disable torque for Dynamixel ID %d", i+1);
-                break;
-            }
+            // Case 2: The i-th motor is already turned off
+            // else
+                // do nothing
         }
-        // Enable Torque Request   
+
+        // Manage Enable Torque Request
         else
         {
-            // Consider this motor inside set2registers() method
-            motors_mask[i] = true;
-
-            // --- Enable Torque & LED --- //
-            // LED
-            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
-            if (dxl_comm_result != COMM_SUCCESS) 
+            // Case 3: The i-th motor turned off
+            if(!motors_mask[i])
             {
-                ROS_ERROR("Failed to turn on LED for Dynamixel ID %d", i+1);
-                break;
-            }
+                // --- Enable Torque & LED --- //
+                // LED
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_LED, LED_ON, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to turn on LED for Dynamixel ID %d", i+1);
+                    break;
+                }
 
-            // Disable Torque
-            dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
-            if (dxl_comm_result != COMM_SUCCESS) 
-            {
-                ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
-                break;
+                // Enable Torque
+                dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, i + 1, ADDR_TORQUE_ENABLE, TORQUE_ENABLE, &dxl_error);
+                if (dxl_comm_result != COMM_SUCCESS) 
+                {
+                    ROS_ERROR("Failed to enable torque for Dynamixel ID %d", i+1);
+                    break;
+                }
+
+                // Update motors_mask
+                motors_mask[i] = true;
             }
+            
+            // Case 4: The i-th motor is ready to set turns
+            // else
+                // do nothing
 
             // Security Saturation on turns values
             if(!turns_saturation(turns[i]))
                 ROS_WARN("Commanded Turns are out of limits. Saturating...");
 
             registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
-        }    
+        }
     }
 
-    return set2registers(registers, motors_mask);   // to do: write the overwritten method  
+    // Avoid writing in the registers when all the motors are turned off
+    if(is_allOFF())
+    {
+        ROS_WARN("All motors are turned OFF.");
+        return true;
+    }
+    else
+        return set2registers_disable(registers);
 }
 
 bool ExtPos_Dynamixel::set2Zeros()
@@ -427,4 +453,20 @@ bool ExtPos_Dynamixel::set2Zeros()
         motors_syncWrite.clearParam();
         return false;
     }
+}
+
+bool ExtPos_Dynamixel::is_allOFF()
+{
+    // useful variable
+    bool output = false;
+    
+    // Iterative OR to find at least one true
+    for(i = 0; i < n_motors; i++)
+    {
+        output |= motors_mask[i];
+    }
+
+    // If all elements of motors_mask are false, then true
+    // If motors_mask contains at least 1 true, then false
+    return !output;
 }
