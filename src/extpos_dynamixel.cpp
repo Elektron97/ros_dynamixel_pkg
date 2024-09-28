@@ -391,7 +391,7 @@ bool ExtPos_Dynamixel::set_turns_disable(std::vector<float> turns)
             if(!turns_saturation(turns[i]))
                 ROS_WARN("Commanded Turns are out of limits. Saturating...");
 
-            registers[i] = ((int32_t) (turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
+            registers[i] = ((int32_t) (-turns[i]*((float) ONE_TURN_REGISTER))) + initial_positions[i];
         }
     }
 

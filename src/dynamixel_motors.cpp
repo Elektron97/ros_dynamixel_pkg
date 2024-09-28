@@ -33,14 +33,14 @@ bool registerCur_saturation(int16_t &register_value)
 
 bool turns_saturation(float &turn) 
 {
-    // No need of sign function, because is only positive values
+    // ign function
     if(turn > MAX_TURNS)
     {
         turn = MAX_TURNS;
         return false;
     }
     // No negative turns
-    else if (turn < 0)
+    else if (turn < 0.0)
     {
         turn = 0.0;
         return false;
